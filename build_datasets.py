@@ -24,6 +24,10 @@ and item["meta"]["clinical"]["sex"] is not None \
 and "age_approx" in item["meta"]["clinical"] \
 and item["meta"]["clinical"]["age_approx"] is not None \
 and item["meta"]["clinical"]["age_approx"] != 0 \
+and "benign_malignant" in item["meta"]["clinical"] \
+and item["meta"]["clinical"]["benign_malignant"] is not None \
+and "name" in item \
+and item["name"] is not None \
 , data)
 print(len(data))
 
@@ -38,8 +42,8 @@ for index in range(len(data)):
     i = data[index]
     if index % 10 == 0:
         print(index)
-    URL = "https://isic-archive.com/api/v1/image/" + i["_id"] + "/thumbnail?width=299&height=299"
-    r = requests.get(url = URL, stream=True)
+    # URL = "https://isic-archive.com/api/v1/image/" + i["_id"] + "/thumbnail?width=299&height=299"
+    # r = requests.get(url = URL, stream=True)
     clinical = i["meta"]["clinical"]
     for j in range(4):
         label = clinical["benign_malignant"]
@@ -51,19 +55,19 @@ for index in range(len(data)):
             label += " " + clinical["sex"]
         if label not in labels[j]:
             labels[j][label] = True
-        filename = "./" + train_or_valid + "_" + str(j) + "/" + label + "/" + i["name"] + ".jpg"
-        if not os.path.exists(os.path.dirname(filename)):
-            try:
-                os.makedirs(os.path.dirname(filename))
-            except OSError as exc: # Guard against race condition
-                if exc.errno != errno.EEXIST:
-                    raise
-        with open(filename, "wb") as f:
-            r.raw.decode_content = True
-            shutil.copyfileobj(r.raw, f)
+        # filename = "./" + train_or_valid + "_" + str(j) + "/" + label + "/" + i["name"] + ".jpg"
+        # if not os.path.exists(os.path.dirname(filename)):
+        #     try:
+        #         os.makedirs(os.path.dirname(filename))
+        #     except OSError as exc: # Guard against race condition
+        #         if exc.errno != errno.EEXIST:
+        #             raise
+        # with open(filename, "wb") as f:
+        #     r.raw.decode_content = True
+        #     shutil.copyfileobj(r.raw, f)
 
 # write labels to files
 for j in range(4):
     with open("./labels_" + str(j), "wb") as f:
-        for l in labels:
+        for l in labels[j]:
             f.write(l + "\n")
